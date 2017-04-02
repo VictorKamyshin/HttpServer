@@ -36,12 +36,15 @@ public class HttpResponse {
 
 
         server = "VictorServer";
-        date = new Date().toString();
         connection = "close";
     }
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public void setDate() {
+        date = new Date().toString();
     }
 
     public void setRequestMethod(String requestMethod) {

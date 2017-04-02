@@ -62,28 +62,51 @@ public class WorkerThread extends Thread {
 
             data= URLDecoder.decode(data, "UTF-8");
 
-            System.out.println(data);
+            //System.out.println(data);
 
             String uri = RequestParser.getURI(data);
 
-            final HttpResponse response = new HttpResponse();
+            if(MainThread.cache.get(uri)!=null){
+                HttpResponse response = MainThread.cache.get(uri);
+                response.setDate();
+                response.setRequestMethod(RequestParser.getMethod(data));
+                response.setDate();
+
+                os.write(response.getAsBytes());
+                System.out.println("Get response from cache");
+            } else {
+                final HttpResponse response = new HttpResponse();
+                response.setStatus(200);
+                response.setRequestMethod(RequestParser.getMethod(data));
+                response.setDate();
+
+                if(uri!=null) {
+                    if (uri.equals("favicon.ico")) {
+                        s.close();
+                        return;
+                    }
+                }
+                response.setBodyByPath(rootDir, uri);
+
+                os.write(response.getAsBytes());
+
+                MainThread.cache.put(uri,response);
+                System.out.println("Get not response from cache");
+            }
+
+            /*final HttpResponse response = new HttpResponse();
             response.setStatus(200);
 
-            final String method = RequestParser.getMethod(data);
-            //System.out.println(method);
-            response.setRequestMethod(method);
+            response.setRequestMethod(RequestParser.getMethod(data));
+            response.setDate();
 
-            if(uri!=null) {
-                if (uri.equals("favicon.ico")) {
-                    s.close();
-                    return;
-                }
-            }
 
             response.setBodyByPath(rootDir, uri);
 
             os.write(response.getAsBytes());
 
+            MainThread.cache.put(uri,response);
+            */
             s.close();
             System.out.println("I am thread with id "+myId+" and i'm finish my work. I have " +
                     tasks.size() + " another tasks.");
