@@ -56,11 +56,28 @@ public class WorkerThread extends Thread {
             final InputStream is = s.getInputStream();
             final OutputStream os = s.getOutputStream();
 
+            String data;
+            /*BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+                StringBuilder dataBuilder = new StringBuilder();
+
+                while (true) {
+                    final String tmp = reader.readLine();
+                    if (tmp.isEmpty()) {
+                        break;
+                    }
+                    dataBuilder.append(tmp);
+                }*/
             final byte[] buf = new byte [64*1024];
 
-            final int r = is.read(buf);
+            int r = is.read(buf);
 
-            String data = new String(buf,0,r);
+                    //dataBuilder.toString();
+            if(r>0) {
+                data = new String(buf, 0, r);
+            } else {
+                data = "";
+            }
 
             data= URLDecoder.decode(data, "UTF-8");
 
