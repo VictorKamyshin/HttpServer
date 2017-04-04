@@ -22,7 +22,7 @@ public class MainThread {
 
     private static Integer numberOfThreads;
 
-    private static final Integer PORT = 8080;
+    private static final Integer PORT = 80;
 
     private static ConcurrentLinkedQueue<WorkerThread> freeThreads= new ConcurrentLinkedQueue<WorkerThread>();
 
