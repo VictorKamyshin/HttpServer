@@ -6,15 +6,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
  * Created by Пользователь on 26.03.2017.
  */
 public class HttpResponse {
-    private Map<Integer,String> statusCode = new HashMap<Integer, String>();
+
+    public static final Integer OK = 200;
+
+    public static final Integer FORBRIDDEN = 403;
+
+    public static final Integer NOTFOUND = 404;
+
+    public static final Integer BADREQUEST = 400;
+
+    public static final Integer NOTALLOWED = 405;
+
 
     private Integer status;
     private String date;
@@ -28,13 +36,6 @@ public class HttpResponse {
     private String requestMethod;
 
     public HttpResponse(){
-
-        statusCode.put(200,"OK");
-        statusCode.put(404,"NOT FOUND");
-        statusCode.put(403, "FORBIDDEN");
-        statusCode.put(400, "BAD REQUEST");
-
-
         server = "VictorServer";
         connection = "close";
     }
@@ -50,11 +51,11 @@ public class HttpResponse {
     public void setRequestMethod(String requestMethod) {
         if(requestMethod.equals("GET")||(requestMethod.equals("HEAD"))) {
             this.requestMethod = requestMethod;
-            status=200;
+            status=OK;
         } else {
             System.out.println(requestMethod);
             this.requestMethod = requestMethod;
-            status=405;
+            status=NOTALLOWED;
         }
     }
 
@@ -106,53 +107,23 @@ public class HttpResponse {
 
         setContentType(fileName);
 
-        final File targetFile = new File(pathString+"/"+fileName);
+        final File targetFile = new File(pathString+'/'+fileName);
 
         if(targetFile.isDirectory()){
-
             try{
-                System.out.println(pathString+fileName+"index.html");
                 final Path path = Paths.get(pathString+fileName+"index.html");
                 this.body = Files.readAllBytes(path);
                 contentLength=body.length;
-                status=200;
+                status=OK;
             } catch(IOException e) {
                 e.printStackTrace();
-                /*
-                final File[] files = (new File(pathString)).listFiles();
-
-                final StringBuilder builder = new StringBuilder();
-
-                builder.append("<!DOCTYPE html>\n" +
-                        "<html>\n" +
-                        "   <head>\n" +
-                        "      <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n" +
-                        "      <title>HTML Document</title>\n" +
-                        "   </head>\n" +
-                        "   <body>\n" +
-                        " <ul> \n");
-                try {
-                    for (File file : files) {
-                        builder.append("<li>");
-                        builder.append(file.getName());
-                        builder.append("</li>");
-                        builder.append('\n');
-                    }
-                } catch (NullPointerException npe) {
-
-                }
-                builder.append("</ul>");
-                builder.append("</body>");
-                body = builder.toString().getBytes();
-                contentLength = body.length;*/
-                status=403;
+                status=FORBRIDDEN;
                 body = null;
                 contentLength=0;
-                //если нет файла с индексом, то свой делать не надо
             }
         } else {
             if(fileName.contains("..")){
-                status=403;
+                status=FORBRIDDEN;
                 body = null;
                 contentLength=0;
                 return;
@@ -166,7 +137,7 @@ public class HttpResponse {
                 e.printStackTrace();
                 body = null;
                 contentLength = 0;
-                status = 404;
+                status = NOTFOUND;
             }
 
         }
@@ -175,31 +146,19 @@ public class HttpResponse {
     public byte[] getAsBytes() throws RuntimeException {
         final StringBuilder builder = new StringBuilder("HTTP/1.1 ");
 
-        if(status.equals(404)){
+        if(status.equals(NOTFOUND)){
             builder.append("404 NOT FOUND");
             builder.append("\r\n");
-        } else if(status.equals(200)){
+        } else if(status.equals(OK)){
             builder.append("200 OK");
             builder.append("\r\n");
-        } else if(status.equals(403)){
+        } else if(status.equals(FORBRIDDEN)){
             builder.append("403 FORBRIDDEN");
             builder.append("\r\n");
         } else {
             builder.append("405 NOT ALLOWED");
             builder.append("\r\n");
         }
-/*        if(status == null){
-            throw new RuntimeException("Response status is null");
-        } else {
-            builder.append(status);
-            builder.append(' ');
-            if(statusCode.get(status)!=null) {
-                builder.append(statusCode.get(status));
-                builder.append("\r\n");
-            } else {
-                throw new RuntimeException("Status code not found");
-            }
-        }*/
 
         addHeader(builder,"Date",date);
         addHeader(builder, "Server",server);

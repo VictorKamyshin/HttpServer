@@ -1,5 +1,6 @@
 package ru.mail.park;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -15,7 +16,7 @@ public class WorkerThread extends Thread {
 
     private int myId;
 
-    private ConcurrentLinkedQueue<Socket> tasks = new ConcurrentLinkedQueue<Socket>();
+    private ConcurrentLinkedQueue<Socket> tasks = new ConcurrentLinkedQueue<>();
 
     public void addTask(Socket socket){
         tasks.add(socket);
@@ -101,8 +102,9 @@ public class WorkerThread extends Thread {
 
 
             s.close();
-        } catch(Exception e){
+        } catch(IOException e){
             e.printStackTrace();
         }
+
     }
 }

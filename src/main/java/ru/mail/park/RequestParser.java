@@ -6,10 +6,8 @@ package ru.mail.park;
 public class RequestParser {
 
     public static String getURI(String request){
-        //System.out.println(request);
         final Integer begin = request.indexOf('/');
-        ///?|HTTP
-        Integer end = request.substring(begin).indexOf("?");
+        Integer end = request.substring(begin).indexOf('?');
         if(end<0){
             end = request.substring(begin).indexOf("HTTP")-1;
         }
@@ -23,8 +21,7 @@ public class RequestParser {
     }
 
     public static String getMethod(String request){
-        final Integer begin = 0;
-        final Integer end = request.indexOf(" ");
+        final Integer end = request.indexOf(' ');
         return request.substring(0, end);
     }
 }
