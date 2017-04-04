@@ -24,15 +24,30 @@ public class MainThread {
 
     private static final Integer PORT = 8080;
 
-    public static ConcurrentLinkedQueue<WorkerThread> freeThreads= new ConcurrentLinkedQueue<WorkerThread>();
+    private static ConcurrentLinkedQueue<WorkerThread> freeThreads= new ConcurrentLinkedQueue<WorkerThread>();
 
     private static ArrayList<WorkerThread> allThreads = new ArrayList<WorkerThread>();
 
     private static CircleListIndex index;
 
-    public static ConcurrentHashMap<String,HttpResponse> cache= new ConcurrentHashMap<String,HttpResponse>();
+    private static ConcurrentHashMap<String,HttpResponse> cache= new ConcurrentHashMap<String,HttpResponse>();
+
+    public static void addFreeWorker(WorkerThread freeWorker){
+        if(!freeThreads.contains(freeWorker)) {
+            freeThreads.add(freeWorker);
+        }
+    }
+
+    public static void addToCache(String request,HttpResponse response){
+        cache.put(request, response);
+    }
+
+    public static HttpResponse getFromCache(String request){
+        return cache.get(request);
+    }
 
     public static void main(String[] args){
+
         for (Integer i =0; i < args.length; i++) {
             if(ROOTDIRKEY.equals(args[i])){
                 try{
@@ -47,18 +62,14 @@ public class MainThread {
                 try{
                     numberOfThreads=Integer.parseInt(args[i+1]);
                     index = new CircleListIndex(numberOfThreads);
-                } catch(ArrayIndexOutOfBoundsException e){
-                    e.printStackTrace();
-                    return;
-                } catch (NumberFormatException e){
+                } catch(ArrayIndexOutOfBoundsException|NumberFormatException e) {
                     e.printStackTrace();
                     return;
                 }
             }
         }
 
-        try {
-            final ServerSocket server = new ServerSocket(PORT,0, InetAddress.getByName("localhost"));
+        try(final ServerSocket server = new ServerSocket(PORT,0, InetAddress.getByName("localhost"))) {
             for(Integer i = 0; i < numberOfThreads; i++){
                 allThreads.add(new WorkerThread(i, rootDir)); //Создаем работников и они сами строятся
                 //в очередь
@@ -69,11 +80,9 @@ public class MainThread {
                 final Socket socket = server.accept(); //ждем запросов
                 if(!freeThreads.isEmpty()) { //если свободные воркеры есть, то отдаем им
                     final WorkerThread wt = freeThreads.poll();
-                    wt.tasks.add(socket);
-                    //System.out.println("Get request "+ freeThreads.size());
+                    wt.addTask(socket);
                 } else { //если нет - просто раскидываем по кругу
-                    //System.out.println("No avalialble threads");
-                    allThreads.get(index.getIndex()).tasks.add(socket);
+                    allThreads.get(index.getIndex()).addTask(socket);
                     index.increment();
                 }
             }

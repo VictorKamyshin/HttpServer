@@ -15,14 +15,19 @@ public class WorkerThread extends Thread {
 
     private int myId;
 
-    public ConcurrentLinkedQueue<Socket> tasks = new ConcurrentLinkedQueue<Socket>();
+    private ConcurrentLinkedQueue<Socket> tasks = new ConcurrentLinkedQueue<Socket>();
+
+    public void addTask(Socket socket){
+        tasks.add(socket);
+    }
+
 
     public WorkerThread(int id, String rootDir){
         this.myId = id;
         this.rootDir = rootDir;
 
 
-        MainThread.freeThreads.add(this);
+        MainThread.addFreeWorker(this);
         //System.out.println("I am thread with id "+myId+". Ready to work. "+MainThread.freeThreads.isEmpty());
         setDaemon(true);
         setPriority(NORM_PRIORITY);
@@ -40,9 +45,8 @@ public class WorkerThread extends Thread {
                 } catch(InterruptedException e){
                     e.printStackTrace();
                 }
-                if(!MainThread.freeThreads.contains(this)) {
-                    MainThread.freeThreads.add(this);
-                }
+                MainThread.addFreeWorker(this);
+
             }
 
         }
@@ -67,9 +71,8 @@ public class WorkerThread extends Thread {
             final String uri = RequestParser.getURI(data);
 
             if(uri!=null) {
-                if (MainThread.cache.get(uri) != null) {
-                    HttpResponse response = MainThread.cache.get(uri);
-                    response.setDate();
+                if (MainThread.getFromCache(uri) != null) {
+                    final HttpResponse response = MainThread.getFromCache(uri);
                     response.setRequestMethod(RequestParser.getMethod(data));
                     response.setDate();
 
@@ -83,7 +86,7 @@ public class WorkerThread extends Thread {
 
                     os.write(response.getAsBytes());
 
-                    MainThread.cache.put(uri, response);
+                    MainThread.addToCache(uri, response);
                     System.out.println("Get not response from cache");
                 }
             } else {
@@ -97,22 +100,7 @@ public class WorkerThread extends Thread {
             }
 
 
-            /*final HttpResponse response = new HttpResponse();
-            response.setStatus(200);
-
-            response.setRequestMethod(RequestParser.getMethod(data));
-            response.setDate();
-
-
-            response.setBodyByPath(rootDir, uri);
-
-            os.write(response.getAsBytes());
-
-            MainThread.cache.put(uri,response);
-            */
             s.close();
-            //System.out.println("I am thread with id "+myId+" and i'm finish my work. I have " +
-              //      tasks.size() + " another tasks.");
         } catch(Exception e){
             e.printStackTrace();
         }
