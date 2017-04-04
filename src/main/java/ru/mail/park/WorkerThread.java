@@ -23,7 +23,7 @@ public class WorkerThread extends Thread {
 
 
         MainThread.freeThreads.add(this);
-        System.out.println("I am thread with id "+myId+". Ready to work. "+MainThread.freeThreads.isEmpty());
+        //System.out.println("I am thread with id "+myId+". Ready to work. "+MainThread.freeThreads.isEmpty());
         setDaemon(true);
         setPriority(NORM_PRIORITY);
         start();
@@ -33,7 +33,7 @@ public class WorkerThread extends Thread {
     public void run(){
         while(true){
             if(!tasks.isEmpty()) {
-                System.out.println("I am thread with id "+myId+" and i'm gonna perform this taks.");
+                //System.out.println("I am thread with id "+myId+" and i'm gonna perform this taks.");
                 performTask(tasks.poll());
                 try{
                     Thread.sleep(100);
@@ -51,48 +51,51 @@ public class WorkerThread extends Thread {
     private void performTask(Socket s){
 
         try{
-            InputStream is = s.getInputStream();
-            OutputStream os = s.getOutputStream();
+            final InputStream is = s.getInputStream();
+            final OutputStream os = s.getOutputStream();
 
-            byte buf[] = new byte [64*1024];
+            final byte[] buf = new byte [64*1024];
 
-            int r = is.read(buf);
+            final int r = is.read(buf);
 
             String data = new String(buf,0,r);
 
             data= URLDecoder.decode(data, "UTF-8");
 
-            //System.out.println(data);
+            System.out.println(data);
 
-            String uri = RequestParser.getURI(data);
+            final String uri = RequestParser.getURI(data);
 
-            if(MainThread.cache.get(uri)!=null){
-                HttpResponse response = MainThread.cache.get(uri);
-                response.setDate();
-                response.setRequestMethod(RequestParser.getMethod(data));
-                response.setDate();
+            if(uri!=null) {
+                if (MainThread.cache.get(uri) != null) {
+                    HttpResponse response = MainThread.cache.get(uri);
+                    response.setDate();
+                    response.setRequestMethod(RequestParser.getMethod(data));
+                    response.setDate();
 
-                os.write(response.getAsBytes());
-                System.out.println("Get response from cache");
+                    os.write(response.getAsBytes());
+                    System.out.println("Get response from cache");
+                } else {
+                    final HttpResponse response = new HttpResponse();
+                    response.setRequestMethod(RequestParser.getMethod(data));
+                    response.setDate();
+                    response.setBodyByPath(rootDir, uri);
+
+                    os.write(response.getAsBytes());
+
+                    MainThread.cache.put(uri, response);
+                    System.out.println("Get not response from cache");
+                }
             } else {
                 final HttpResponse response = new HttpResponse();
-                response.setStatus(200);
                 response.setRequestMethod(RequestParser.getMethod(data));
                 response.setDate();
-
-                if(uri!=null) {
-                    if (uri.equals("favicon.ico")) {
-                        s.close();
-                        return;
-                    }
-                }
-                response.setBodyByPath(rootDir, uri);
+                response.setBodyByPath(rootDir, null);
 
                 os.write(response.getAsBytes());
-
-                MainThread.cache.put(uri,response);
                 System.out.println("Get not response from cache");
             }
+
 
             /*final HttpResponse response = new HttpResponse();
             response.setStatus(200);
@@ -108,8 +111,8 @@ public class WorkerThread extends Thread {
             MainThread.cache.put(uri,response);
             */
             s.close();
-            System.out.println("I am thread with id "+myId+" and i'm finish my work. I have " +
-                    tasks.size() + " another tasks.");
+            //System.out.println("I am thread with id "+myId+" and i'm finish my work. I have " +
+              //      tasks.size() + " another tasks.");
         } catch(Exception e){
             e.printStackTrace();
         }

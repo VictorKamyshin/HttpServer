@@ -6,8 +6,15 @@ package ru.mail.park;
 public class RequestParser {
 
     public static String getURI(String request){
+        //System.out.println(request);
         final Integer begin = request.indexOf('/');
-        final Integer end = request.substring(begin).indexOf("HTTP")-1;
+        ///?|HTTP
+        Integer end = request.substring(begin).indexOf("?");
+        if(end<0){
+            end = request.substring(begin).indexOf("HTTP")-1;
+        }
+        System.out.println(begin);
+        System.out.println(end);
         if(end!=1) {
             return request.substring(begin + 1, begin + end);
         } else {

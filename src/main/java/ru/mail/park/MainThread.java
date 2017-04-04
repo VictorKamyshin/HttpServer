@@ -70,9 +70,9 @@ public class MainThread {
                 if(!freeThreads.isEmpty()) { //если свободные воркеры есть, то отдаем им
                     final WorkerThread wt = freeThreads.poll();
                     wt.tasks.add(socket);
-                    System.out.println("Get request "+ freeThreads.size());
+                    //System.out.println("Get request "+ freeThreads.size());
                 } else { //если нет - просто раскидываем по кругу
-                    System.out.println("No avalialble threads");
+                    //System.out.println("No avalialble threads");
                     allThreads.get(index.getIndex()).tasks.add(socket);
                     index.increment();
                 }
