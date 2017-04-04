@@ -1,6 +1,5 @@
 package ru.mail.park;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -67,7 +66,7 @@ public class WorkerThread extends Thread {
 
             data= URLDecoder.decode(data, "UTF-8");
 
-            System.out.println(data);
+            //System.out.println(data);
 
             final String uri = RequestParser.getURI(data);
 
@@ -78,7 +77,7 @@ public class WorkerThread extends Thread {
                     response.setDate();
 
                     os.write(response.getAsBytes());
-                    System.out.println("Get response from cache");
+                    //System.out.println("Get response from cache");
                 } else {
                     final HttpResponse response = new HttpResponse();
                     response.setRequestMethod(RequestParser.getMethod(data));
@@ -88,7 +87,7 @@ public class WorkerThread extends Thread {
                     os.write(response.getAsBytes());
 
                     MainThread.addToCache(uri, response);
-                    System.out.println("Get not response from cache");
+                    //System.out.println("Get not response from cache");
                 }
             } else {
                 final HttpResponse response = new HttpResponse();
@@ -97,12 +96,14 @@ public class WorkerThread extends Thread {
                 response.setBodyByPath(rootDir, null);
 
                 os.write(response.getAsBytes());
-                System.out.println("Get not response from cache");
+                //System.out.println("Get not response from cache");
             }
 
 
             s.close();
-        } catch(IOException e){
+        } catch(Exception e){
+
+            System.out.println("UNHANDLED EXCEPTION");
             e.printStackTrace();
         }
 

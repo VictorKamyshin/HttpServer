@@ -49,13 +49,16 @@ public class HttpResponse {
     }
 
     public void setRequestMethod(String requestMethod) {
-        if(requestMethod.equals("GET")||(requestMethod.equals("HEAD"))) {
+        if("GET".equals(requestMethod)||("HEAD".equals(requestMethod))) {
             this.requestMethod = requestMethod;
-            status=OK;
+            if(status==null) {
+                status = OK;
+            }
         } else {
             System.out.println(requestMethod);
             this.requestMethod = requestMethod;
             status=NOTALLOWED;
+
         }
     }
 
@@ -107,7 +110,16 @@ public class HttpResponse {
 
         setContentType(fileName);
 
-        final File targetFile = new File(pathString+'/'+fileName);
+        final File targetFile;
+
+
+        if(fileName==null){
+            targetFile = new File(pathString);
+            System.out.println(pathString);
+        } else {
+            targetFile = new File(pathString+fileName);
+            System.out.println(pathString+fileName);
+        }
 
         if(targetFile.isDirectory()){
             try{
@@ -116,7 +128,7 @@ public class HttpResponse {
                 contentLength=body.length;
                 status=OK;
             } catch(IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 status=FORBRIDDEN;
                 body = null;
                 contentLength=0;
@@ -134,7 +146,7 @@ public class HttpResponse {
                 this.body = Files.readAllBytes(path);
                 contentLength = body.length;
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 body = null;
                 contentLength = 0;
                 status = NOTFOUND;
@@ -177,7 +189,7 @@ public class HttpResponse {
                 return headersByte;
             }
         } else {
-            System.out.println(builder.toString());
+            //System.out.println(builder.toString());
             return builder.toString().getBytes();
         }
     }
