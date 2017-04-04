@@ -25,9 +25,7 @@ public class WorkerThread extends Thread {
     public WorkerThread(int id, String rootDir){
         this.myId = id;
         this.rootDir = rootDir;
-
-
-        MainThread.addFreeWorker(this);
+        MainThread.freeThreads.add(this);
         //System.out.println("I am thread with id "+myId+". Ready to work. "+MainThread.freeThreads.isEmpty());
         setDaemon(true);
         setPriority(NORM_PRIORITY);
@@ -40,12 +38,12 @@ public class WorkerThread extends Thread {
             if(!tasks.isEmpty()) {
                 //System.out.println("I am thread with id "+myId+" and i'm gonna perform this taks.");
                 performTask(tasks.poll());
-                try{
+                /*try{
                     Thread.sleep(100);
                 } catch(InterruptedException e){
                     e.printStackTrace();
-                }
-                MainThread.addFreeWorker(this);
+                }*/
+                MainThread.freeThreads.add(this);
 
             }
 

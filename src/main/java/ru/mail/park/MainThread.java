@@ -16,7 +16,7 @@ public class MainThread {
 
     private static final String ROOTDIRKEY = "-r";
 
-    private static String rootDir = "/home/victor/GURPS/"; //сюда запишем ROOTDIR
+    private static String rootDir; //сюда запишем ROOTDIR
 
     private static final String NUMBEROFTHREADSKEY = "-c";
 
@@ -24,7 +24,7 @@ public class MainThread {
 
     private static final Integer PORT = 80;
 
-    private static ConcurrentLinkedQueue<WorkerThread> freeThreads= new ConcurrentLinkedQueue<WorkerThread>();
+    public static ConcurrentLinkedQueue<WorkerThread> freeThreads= new ConcurrentLinkedQueue<WorkerThread>();
 
     private static ArrayList<WorkerThread> allThreads = new ArrayList<WorkerThread>();
 
