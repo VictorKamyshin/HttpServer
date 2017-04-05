@@ -115,10 +115,10 @@ public class HttpResponse {
 
         if(fileName==null){
             targetFile = new File(pathString);
-            System.out.println(pathString);
+            //System.out.println(pathString);
         } else {
             targetFile = new File(pathString+fileName);
-            System.out.println(pathString+fileName);
+            //System.out.println(pathString+fileName);
         }
 
         if(targetFile.isDirectory()){
