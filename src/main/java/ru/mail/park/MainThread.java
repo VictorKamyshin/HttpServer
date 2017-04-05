@@ -70,21 +70,22 @@ public class MainThread {
         }
 
         try(final ServerSocket server = new ServerSocket(PORT,0, InetAddress.getByName("localhost"))) {
-            for(Integer i = 0; i < numberOfThreads; i++){
+            /*for(Integer i = 0; i < numberOfThreads; i++){
                 allThreads.add(new WorkerThread(i, rootDir)); //Создаем работников и они сами строятся
                 //в очередь
-            }
+            }*/
 
             System.out.println("Server started! ");
             while(true){
                 final Socket socket = server.accept(); //ждем запросов
-                if(!freeThreads.isEmpty()) { //если свободные воркеры есть, то отдаем им
+                new WorkerThread(0, rootDir, socket);
+                /*if(!freeThreads.isEmpty()) { //если свободные воркеры есть, то отдаем им
                     final WorkerThread wt = freeThreads.poll();
                     wt.addTask(socket);
                 } else { //если нет - просто раскидываем по кругу
                     allThreads.get(index.getIndex()).addTask(socket);
                     index.increment();
-                }
+                }*/
             }
         } catch(UnknownHostException e){
             e.printStackTrace();

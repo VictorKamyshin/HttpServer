@@ -21,11 +21,13 @@ public class WorkerThread extends Thread {
         tasks.add(socket);
     }
 
+    private Socket socket;
 
-    public WorkerThread(int id, String rootDir){
+    public WorkerThread(int id, String rootDir, Socket socket){
         this.myId = id;
+        this.socket = socket;
         this.rootDir = rootDir;
-        MainThread.freeThreads.add(this);
+        //MainThread.freeThreads.add(this);
         //System.out.println("I am thread with id "+myId+". Ready to work. "+MainThread.freeThreads.isEmpty());
         setDaemon(true);
         setPriority(NORM_PRIORITY);
@@ -34,20 +36,20 @@ public class WorkerThread extends Thread {
 
     @Override
     public void run(){
-        while(true){
-            if(!tasks.isEmpty()) {
+     //   while(true){
+       //     if(!tasks.isEmpty()) {
                 //System.out.println("I am thread with id "+myId+" and i'm gonna perform this taks.");
-                performTask(tasks.poll());
+                performTask(socket);
                 /*try{
                     Thread.sleep(100);
                 } catch(InterruptedException e){
                     e.printStackTrace();
                 }*/
-                MainThread.freeThreads.add(this);
+         //       MainThread.freeThreads.add(this);
 
-            }
+         //   }
 
-        }
+       // }
     }
 
     private void performTask(Socket s){
